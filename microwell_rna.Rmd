@@ -5,10 +5,14 @@ library(DESeq2)
 library(pheatmap)
 library(forcats)
 library(tximport)
-`%>%` <- dplyr::`%>%`
+library(dplyr)
 library(EnhancedVolcano)
 library(PCAtools)
+library(cowplots)
+library(Matrix)
 ```
+
+set.seed(1)
 
 ##samples processing using output files from RSEM with default parameters
 ```{r}
@@ -61,4 +65,34 @@ names(keyvals.colour1)[keyvals.colour1 == 'grey'] <- 'NA'
 names(keyvals.colour1)[keyvals.colour1 == 'blue'] <- 'UP_1,2,3,4'
 names(keyvals.colour1)[keyvals.colour1 == 'red3'] <- 'DOWN_8,9,10,11'
 EnhancedVolcano(deseq_results, lab=deseq_results$labels, selectLab = c("ARL4C", "NFKBIA"), x='log2FoldChange', y='padj', pCutoff = 0.1, col = c('grey', 'grey', 'grey', 'blue'), colAlpha = 1, pointSize = 3, title = "DESeq2 Result", subtitle = "Differential Expression", legendLabels = c("Not significant", "Not significant", "Not significant", "Significant"), legendPosition = 'right', colCustom = keyvals.colour1, labSize = 4, drawConnectors = TRUE, widthConnectors = 0.75) + ylim(0,3) + ylab(bquote(-log[10](FDR))) + xlab(bquote(-log[2](FC))) + theme_bw() + theme(aspect.ratio = 1, panel.grid = element_blank(), legend.title = element_blank(), legend.text = element_text(size = 12), axis.title=element_text(size = 20, face = "bold"), axis.text = element_text(size = 15)) + theme_classic()
+```
+
+##single-cell RNA processing; FigS2A
+```{r}
+scrna.data <- Read10X("~/filtered_gene_bc_matrices/")
+Hash_microwell_cells <- scan("~/Hash-Hash-seq_4230_cells.csv", character(), quote = "")
+Hash_matrigel_cells <- scan("~/Hash-Hash-seq_4230_WT_Hash_cells.csv", character(), quote = "")
+
+scrna2 <- CreateSeuratObject(scrna.data)
+subset_MT_MG <- scrna2[, WhichCells(scrna2, cells = c(Hash_microwell_cells, Hash_matrigel_cells))]
+subset_MT_MG_test <- SetIdent(subset_MT_MG, value= "NonHash")
+subset_MT_MG_test <- SetIdent(subset_MT_MG_test, cells = Hash_microwell_cells, value= "microwell")
+subset_MT_MG_test <- SetIdent(subset_MT_MG_test, cells = Hash_matrigel_cells, value= "matrigel")
+
+scrna3 <- NormalizeData(subset_MT_MG_test)
+scrna3 <- FindVariableFeatures(scrna3, do.plot = FALSE, y.cutoff = 0.5)
+scrna3 <- ScaleData(scrna3, display.progress = FALSE)
+scrna3 <- RunPCA(scrna3, pcs.print = 0)
+scrna3 <- FindNeighbors(scrna3, dims = 1:16)
+scrna3 <- RunUMAP(scrna3, reduction = "pca", dims = 1:16)
+
+unintegrated_title <- DimPlot(scrna3, cols = c("blue", "gray"), reduction = "umap") + theme(aspect.ratio = 1) + NoLegend() + ggtitle("Bulk vs Microwell")
+
+muc5ac <- FeaturePlot(object = scrna3, features = c("MUC5AC")) + NoLegend() + theme(aspect.ratio = 1)
+tff2 <- FeaturePlot(object = scrna3, features = c("TFF2")) + NoLegend() + theme(aspect.ratio = 1)
+PGC <- FeaturePlot(object = scrna3, features = c("PGC")) + NoLegend() + theme(aspect.ratio = 1)
+gkn2 <- FeaturePlot(object = scrna3, features = c("GKN2")) + NoLegend() + theme(aspect.ratio = 1)
+lgr5 <- FeaturePlot(object = scrna3, features = c("LGR5")) + NoLegend() + theme(aspect.ratio = 1)
+plot_grid(unintegrated_title, muc5ac, tff2, PGC, gkn2, lgr5)
+
 ```
