@@ -8,9 +8,9 @@ library(pheatmap)
 library(ggpubr)
 ```
 
-##load datafiles
+##load datafile
 ```{r}
-load("consensus_peaks.mRp.clN.dds.rld.RData") ##data available at dbGAP repository associated with this manuscript
+load("consensus_peaks.mRp.clN.dds.rld.RData") ##nextflow-atac output with default parameters; datafile available at dbGAP repository associated with this manuscript
 ```
 
 ##Preprocessing to remove samples (biological replicates) that did not pass depth and peak filters (see Methods in manuscript)
@@ -33,3 +33,5 @@ percentVar <- round(100 * attr(pcaData, "percentVar"))
 ##PCA plot for Fig5F
 ggplot(pcaData, aes(PC1, PC2, color=group)) + geom_point(size=5) +   xlab(paste0("PC1: ",percentVar[1],"% variance")) +   ylab(paste0("PC2: ",percentVar[2],"% variance")) + coord_fixed() + labs(color = "Polarity") + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), aspect.ratio = 1, axis.text = element_blank(), axis.ticks = element_blank(), axis.title = element_text(size = 20, face = "bold"), legend.title = element_text(size = 15, face = "bold"), legend.text = element_text(size = 12, face = "bold"))
 ```
+
+
