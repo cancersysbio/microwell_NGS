@@ -34,7 +34,7 @@ percentVar <- round(100 * attr(pcaData, "percentVar"))
 ggplot(pcaData, aes(PC1, PC2, color=group)) + geom_point(size=5) +   xlab(paste0("PC1: ",percentVar[1],"% variance")) +   ylab(paste0("PC2: ",percentVar[2],"% variance")) + coord_fixed() + labs(color = "Polarity") + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), aspect.ratio = 1, axis.text = element_blank(), axis.ticks = element_blank(), axis.title = element_text(size = 20, face = "bold"), legend.title = element_text(size = 15, face = "bold"), legend.text = element_text(size = 12, face = "bold")) + scale_color_manual(values = c("#D95F02", "#1B9E77"))
 ```
 
-##heatmap of chromatin accessibility regions
+##processing of chromatin accessibility regions
 ```{r}
 rld.assay <- assay(rld)
 dds_object <- DESeq(dds)
@@ -48,6 +48,11 @@ mat  <- mat - rowMeans(mat)
 anno <- as.data.frame(colData(rld))
 df = subset(anno, select= -c(sizeFactor, replaceable))
 ann_colors = list(condition = c(normal="#1B9E77", abnormal="#D95F02"))
-p <- pheatmap(mat, annotation_col = df, annotation_names_row = FALSE, annotation_names_col = TRUE, clustering_method = "single", col = colorRampPalette(c("navy", "white", "firebrick3"))(50), annotation_colors = ann_colors, show_colnames = FALSE, show_rownames = FALSE, treeheight_col = 15, treeheight_row = 15)
+
+##heatmap for chromatin accessibility regions
+p <- pheatmap(mat, annotation_col = df, annotation_names_row = FALSE, annotation_names_col = TRUE, clustering_method = "single", col = colorRampPalette(c("navy", "white", "firebrick3"))(50), annotation_colors = ann_colors, show_colnames = FALSE, show_rownames = FALSE, treeheight_col = 15, treeheight_row = 15) 
 ```
+
+##processing of transcription footprinting data output by TOBIAS using default parameters
+
 
