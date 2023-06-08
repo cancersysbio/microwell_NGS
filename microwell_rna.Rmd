@@ -69,9 +69,9 @@ EnhancedVolcano(deseq_results, lab=deseq_results$labels, selectLab = c("ARL4C", 
 
 ##single-cell RNA processing; FigS2A
 ```{r}
-scrna.data <- Read10X("~/filtered_gene_bc_matrices/")
-Hash_microwell_cells <- scan("~/Hash-Hash-seq_4230_cells.csv", character(), quote = "")
-Hash_matrigel_cells <- scan("~/Hash-Hash-seq_4230_WT_Hash_cells.csv", character(), quote = "")
+scrna.data <- Read10X("~/filtered_gene_bc_matrices/") ##data associated with 10X processing output
+Hash_microwell_cells <- scan("~/Hash-seq_microwell_cells.csv", character(), quote = "")
+Hash_matrigel_cells <- scan("~/Hash-seq_matrigel_cells.csv", character(), quote = "")
 
 scrna2 <- CreateSeuratObject(scrna.data)
 subset_MT_MG <- scrna2[, WhichCells(scrna2, cells = c(Hash_microwell_cells, Hash_matrigel_cells))]
