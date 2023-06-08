@@ -6,11 +6,15 @@ library(EnhancedVolcano)
 `%>%` <- dplyr::`%>%`
 library(pheatmap)
 library(ggpubr)
+library(biomaRt)
+library(ggrepel)
 ```
 
-##load datafile
+##load datafiles
 ```{r}
 load("consensus_peaks.mRp.clN.dds.rld.RData") ##nextflow-atac output with default parameters; datafile available at dbGAP repository associated with this manuscript
+
+topgenes = read.table("~/bindetect_results.txt", stringAsFactor = FALSE, h=TRUE) ##output file from TOBIAS using default parameters
 ```
 
 ##Preprocessing to remove samples (biological replicates) that did not pass depth and peak filters (see Methods in manuscript)
@@ -49,10 +53,39 @@ anno <- as.data.frame(colData(rld))
 df = subset(anno, select= -c(sizeFactor, replaceable))
 ann_colors = list(condition = c(normal="#1B9E77", abnormal="#D95F02"))
 
-##heatmap for chromatin accessibility regions
+##heatmap for chromatin accessibility regions; Fig5D
 p <- pheatmap(mat, annotation_col = df, annotation_names_row = FALSE, annotation_names_col = TRUE, clustering_method = "single", col = colorRampPalette(c("navy", "white", "firebrick3"))(50), annotation_colors = ann_colors, show_colnames = FALSE, show_rownames = FALSE, treeheight_col = 15, treeheight_row = 15) 
 ```
 
-##processing of transcription footprinting data output by TOBIAS using default parameters
+##processing of transcription footprinting data output by TOBIAS
+```{r}
+changelimit = 0.07
+pvallimit = 80
 
+topgenes$diffexpressed <- rep("NO",length(topgenes$abnormal_normal_change))
+topgenes$diffexpressed[topgenes$abnormal_normal_change > changelimit & -log10(topgenes$abnormal_normal_pvalue) > pvallimit] <- "UP"
+topgenes$diffexpressed[topgenes$abnormal_normal_change < -changelimit & -log10(topgenes$abnormal_normal_pvalue) > pvallimit] <- "DOWN"
+topgenes$labels <- rep(NA,length(topgenes$abnormal_normal_change))
+topgenes$labels[topgenes$diffexpressed != "NO"] <- topgenes$name[topgenes$diffexpressed != "NO"]
+topgenes$labels2 <- rep(NA, length(topgenes$abnormal_normal_change))
+topgenes$labels2[grep("SP1_MA0079.5", topgenes$output_prefix)] = "SP1"
+topgenes$labels2[grep("SP2_MA0516.3", topgenes$output_prefix)] = "SP2"
+topgenes$labels2[grep("SP3_MA0746.2", topgenes$output_prefix)] = "SP3"
+topgenes$labels2[grep("SP4_MA0685.2", topgenes$output_prefix)] = "SP4"
+topgenes$labels2[grep("SP8_MA0747.1", topgenes$output_prefix)] = "SP8"
+topgenes$labels2[grep("SP9_MA1564.1", topgenes$output_prefix)] = "SP9"
+
+topgenes$diffexpressed <- as.factor(topgenes$diffexpressed)
+
+p <-ggplot(data=topgenes, aes(x=abnormal_normal_change, y=-log10(abnormal_normal_pvalue),label=labels2)) + 
+    geom_point(aes(colour = topgenes$diffexpressed))+ 
+    theme_classic() + 
+    geom_text_repel(max.overlaps = Inf,show.legend = FALSE,size = 3.5, box.padding = 0.8,  min.segment.length = 0) + 
+    scale_colour_manual(values=c("red","grey","blue")) +
+    geom_vline(xintercept=c(-changelimit, changelimit),linetype = "dashed",  alpha=0.4) +
+    geom_hline(yintercept=pvallimit, linetype = "dashed", alpha=0.4)  +
+    theme(axis.text.y = element_text(size = 15),axis.text.x = element_text(size = 15),axis.title=element_text(size=18), aspect.ratio =1) + 
+    labs(x ="Change", y = expression("Significance (-Log[10])")) + 
+    expand_limits(x=c(-0.2,0.2))
+```
 
