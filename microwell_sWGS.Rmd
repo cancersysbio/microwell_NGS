@@ -1,0 +1,35 @@
+##import libraries
+```{r}
+library(ggplot2)
+library(cowplot)
+```
+
+##get datafiles
+```{r}
+P53_E4_sWGS.copynumber <- read.csv("~/P53_E4_sWGS.copynumber.csv")
+P53_E6_sWGS.copynumber <- read.csv("~/P53_E6_sWGS.copynumber.csv")
+DKO_E4_sWGS.copynumber <- read.csv("~/P53_E4_sWGS.copynumber.csv")
+DKO_E6_sWGS.copynumber <- read.csv("~/P53_E6_sWGS.copynumber.csv")
+P53_chr3_cn <- read.csv("~/P53_chr3_cn.csv")
+P53_chr11_cn <- read.csv("~/P53_chr11_cn.csv")
+```
+
+##plot CNV (Fig 4E)
+```{r}
+P53_e4 <- ggplot(P53_E4_sWGS.copynumber, aes(x=coordinate, y=cn)) + geom_point(aes(colour=cn), size=0.01) + scale_colour_gradient2(low = "midnightblue", high = "#C82536", mid ="gray65", midpoint = 0, limits=c(-3,3)) +theme_bw() + facet_grid(~chromosome, scales = "free", space = "free", switch = "both") + ggExtra::removeGrid() + theme(panel.spacing.x = unit(0, "lines"), panel.border = element_rect(linetype =3, fill = NA), strip.text.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.x = element_blank(), legend.position = "none")+scale_x_continuous(expand = c(0.01, 0.01)) + ylim(-3,3) + ylab("P53KO Exp #4")
+
+P53_e6 <- ggplot(P53_E6_sWGS.copynumber, aes(x=coordinate, y=cn)) + geom_point(aes(colour=cn), size=0.01) + scale_colour_gradient2(low = "midnightblue", high = "#C82536", mid ="gray65", midpoint = 0, limits=c(-3,3)) +theme_bw() + facet_grid(~chromosome, scales = "free", space = "free", switch = "both") + ggExtra::removeGrid() + theme(panel.spacing.x = unit(0, "lines"), panel.border = element_rect(linetype =3, fill = NA), strip.text.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.x = element_blank(), legend.position = "none")+scale_x_continuous(expand = c(0.01, 0.01)) + ylim(-3,3) + ylab("P53KO Exp #6")
+
+DKO_e4 <- ggplot(DKO_E4_sWGS.copynumber, aes(x=coordinate, y=cn)) + geom_point(aes(colour=cn), size=0.01) + scale_colour_gradient2(low = "midnightblue", high = "#C82536", mid ="gray65", midpoint = 0, limits=c(-3,3)) +theme_bw() + facet_grid(~chromosome, scales = "free", space = "free", switch = "both") + ggExtra::removeGrid() + theme(panel.spacing.x = unit(0, "lines"), panel.border = element_rect(linetype =3, fill = NA), strip.text.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.x = element_blank(), legend.position = "none")+scale_x_continuous(expand = c(0.01, 0.01)) + ylim(-3,3) + ylab("DKO Exp #4")
+
+DKO_e6 <- ggplot(DKO_E6_sWGS.copynumber, aes(x=coordinate, y=cn)) + geom_point(aes(colour=cn), size=0.01) + scale_colour_gradient2(low = "midnightblue", high = "#C82536", mid ="gray65", midpoint = 0, limits=c(-3,3)) +theme_bw() + facet_grid(~chromosome, scales = "free", space = "free", switch = "both") + ggExtra::removeGrid() + theme(panel.spacing.x = unit(0, "lines"), panel.border = element_rect(linetype =3, fill = NA), strip.text.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.x = element_blank(), legend.position = "none")+scale_x_continuous(expand = c(0.01, 0.01)) + ylim(-3,3) + ylab("DKO Exp #6")
+
+plot_grid(P53_e4, P53_e6, DKO_e4, DKO_e6, ncol = 1, align = "v")
+```
+
+##plot specific chromosomes of P53KO (Fig 4F)
+```{r}
+P53_chr11 <- ggplot(p53_chr11_cn, aes(x=coordinate, y=copynumber))+ geom_point(aes(colour=copynumber), size=0.01) + scale_colour_gradient2(low = "midnightblue", high = "#C82536", mid ="gray65", midpoint = 0, limits=c(-3,3)) +theme_bw() + ylim(-3, 3)  + theme(panel.grid = element_blank())+ scale_x_continuous(labels = scales::comma, breaks = scales::pretty_breaks(n = 5)) + xlab("Chromosome 11") + ylab(bquote(log[2](CN)))+ theme(aspect.ratio = 0.3, axis.text.x = element_blank(), axis.ticks.x = element_blank(),legend.position = "none") + geom_hline(yintercept = 0, linetype="dotted", col="blue")
+
+P53_chr3 <- ggplot(p53_chr3_cn, aes(x=coordinate, y=copynumber))+ geom_point(aes(colour=copynumber), size=0.01) + scale_colour_gradient2(low = "midnightblue", high = "#C82536", mid ="gray65", midpoint = 0, limits=c(-3,3)) +theme_bw() + ylim(-3, 3)  + theme(panel.grid = element_blank())+ scale_x_continuous(labels = scales::comma, breaks = scales::pretty_breaks(n = 5)) + xlab("Chromosome 3") + ylab(bquote(log[2](CN)))+ theme(aspect.ratio = 0.3, axis.text.x = element_blank(), axis.ticks.x = element_blank(),legend.position = "none") + geom_hline(yintercept = 0, linetype="dotted", col="blue")
+```
