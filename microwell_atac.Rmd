@@ -77,6 +77,7 @@ topgenes$labels2[grep("SP9_MA1564.1", topgenes$output_prefix)] = "SP9"
 
 topgenes$diffexpressed <- as.factor(topgenes$diffexpressed)
 
+##plot differential binding of TFs; Fig5G
 p <-ggplot(data=topgenes, aes(x=abnormal_normal_change, y=-log10(abnormal_normal_pvalue),label=labels2)) + 
     geom_point(aes(colour = topgenes$diffexpressed))+ 
     theme_classic() + 
